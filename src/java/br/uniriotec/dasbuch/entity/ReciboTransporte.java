@@ -12,7 +12,8 @@ import java.util.Date;
  */
 public class ReciboTransporte {
     
-    private int numeroDoPedido;
+    private int numeroDoPedidoTransporte;
+    private String numeroDoPedidoCliente;
     private Date dataRetirada;
     private Date dataEntrega;
     private double custo;
@@ -22,18 +23,26 @@ public class ReciboTransporte {
     }
 
     public ReciboTransporte(int numeroDoPedido, Date dataRetirada, Date dataEntrega, double custo) {
-        this.numeroDoPedido = numeroDoPedido;
+        this.numeroDoPedidoTransporte = numeroDoPedido;
         this.dataRetirada = dataRetirada;
         this.dataEntrega = dataEntrega;
         this.custo = custo;
     }
 
-    public int getNumeroDoPedido() {
-        return numeroDoPedido;
+    public int getNumeroDoPedidoTransporte() {
+        return numeroDoPedidoTransporte;
     }
 
-    public void setNumeroDoPedido(int numeroDoPedido) {
-        this.numeroDoPedido = numeroDoPedido;
+    public void setNumeroDoPedidoTransporte(int numeroDoPedido) {
+        this.numeroDoPedidoTransporte = numeroDoPedido;
+    }
+    
+    public String getNumeroDoPedidoCliente() {
+        return numeroDoPedidoCliente;
+    }
+
+    public void setNumeroDoPedidoCliente(String numeroDoPedidoCliente) {
+        this.numeroDoPedidoCliente = numeroDoPedidoCliente;
     }
 
     public Date getDataRetirada() {

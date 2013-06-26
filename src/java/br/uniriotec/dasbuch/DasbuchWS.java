@@ -37,7 +37,8 @@ public class DasbuchWS {
         response.setCusto(10.00);
         response.setDataEntrega(new Date());
         response.setDataRetirada(new Date());
-        response.setNumeroDoPedido(10);
+        response.setNumeroDoPedidoTransporte(10);
+        response.setNumeroDoPedidoCliente(pedido);
         
         return response;
     }
