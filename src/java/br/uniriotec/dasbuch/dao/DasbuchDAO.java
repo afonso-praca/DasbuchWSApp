@@ -42,68 +42,6 @@ public class DasbuchDAO {
         }
     }
     
-    /*public List<String> consultarCPF(String nome) {
-        
-        String sql = "select * from cliente";
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        List<String> resultado = new ArrayList<String>();
-        
-        try {
-            abrirConexao();
-            stmt = conn.prepareStatement(sql);
-            //stmt.setString(1, nome);
-            rs = stmt.executeQuery();
-            
-            while (rs.next()){
-                String temp = rs.getString("cpf");
-                resultado.add(temp);
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return resultado;
-    }*/
-    
-    /*public List<String> createPedidoTransporte(ReciboTransporte reciboTransporte) {
-        
-    }*/
-    
-    public static void main(String args[]) {
-        //insertLivraria(456, "Saraiva");
-        abrirConexao();
-        ReciboTransporte response = new ReciboTransporte();
-        
-        response.setLivraria(77);
-        response.setNumeroDoPedidoCliente("7843HW");
-        response.setNotaFiscal("392758478257");
-        
-        Cliente c = new Cliente();
-        c.setCpf("09836528744");
-        response.setCliente(c);
-        //checarExistenciaCliente(c);
-        
-        Endereco retirada = new Endereco();
-        retirada.setId(1);
-        response.setEnderecoRetirada(retirada);
-        //checarExistenciaEndereco(retirada);
-        
-        Endereco entrega = new Endereco();
-        entrega.setId(2);
-        response.setEnderecoEntrega(entrega);
-        //checarExistenciaEndereco(entrega);
-        
-        Livro livro = new Livro();
-        livro.setIsbn("98723");
-        response.setLivro(livro);
-        //checarExistenciaLivro(livro);
-        
-        //persistirPedidoTransporte(response);
-        
-        fecharConexao();
-    }
-    
     public int persistir(ReciboTransporte reciboTransporte) {
         abrirConexao();
         checarExistenciaEndereco(reciboTransporte.getEnderecoRetirada());
