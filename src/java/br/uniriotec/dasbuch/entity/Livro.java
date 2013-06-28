@@ -10,31 +10,28 @@ package br.uniriotec.dasbuch.entity;
  */
 public class Livro {
     
-    private String titulo;
-    private String editora;
-    private String ano;
     private String isbn;
+    private String titulo;
+    private double comprimento;
     private double largura;
     private double altura;
-    private double comprimento;
     private double peso;
-    private String idioma;
+    private String editora;
 
     public Livro() {
         
     }
 
-    public Livro(String titulo, String editora, String ano, String isbn, double largura, double altura, double profundidade, double peso) {
-        this.titulo = titulo;
-        this.editora = editora;
-        this.ano = ano;
+    public Livro(String isbn, String titulo, double comprimento, double largura, double altura, double peso, String editora) {
         this.isbn = isbn;
+        this.titulo = titulo;
+        this.comprimento = comprimento;
         this.largura = largura;
         this.altura = altura;
-        this.comprimento = profundidade;
         this.peso = peso;
+        this.editora = editora;
     }
-
+    
     public String getTitulo() {
         return titulo;
     }
@@ -49,14 +46,6 @@ public class Livro {
 
     public void setEditora(String editora) {
         this.editora = editora;
-    }
-
-    public String getAno() {
-        return ano;
-    }
-
-    public void setAno(String ano) {
-        this.ano = ano;
     }
 
     public String getIsbn() {
@@ -99,12 +88,4 @@ public class Livro {
         this.peso = peso;
     }
 
-    public String getIdioma() {
-        return idioma;
-    }
-
-    public void setIdioma(String idioma) {
-        this.idioma = idioma;
-    }
-    
 }

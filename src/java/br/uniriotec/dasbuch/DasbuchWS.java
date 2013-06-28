@@ -4,13 +4,14 @@
  */
 package br.uniriotec.dasbuch;
 
+import br.uniriotec.dasbuch.dao.DasbuchDAO;
 import javax.jws.WebService;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.ejb.Stateless;
 
 import br.uniriotec.dasbuch.entity.*;
-import java.util.Date;
+import java.sql.Date;
 
 /**
  *
@@ -19,6 +20,8 @@ import java.util.Date;
 @WebService(serviceName = "DasbuchWS")
 @Stateless()
 public class DasbuchWS {
+    
+    private static final double CUSTO_ENTREGA = 10.0;
 
     /**
      * Web service operation
@@ -34,11 +37,21 @@ public class DasbuchWS {
         
         ReciboTransporte response = new ReciboTransporte();
         
-        response.setCusto(10.00);
-        response.setDataEntrega(new Date());
-        response.setDataRetirada(new Date());
-        response.setNumeroDoPedidoTransporte(10);
         response.setNumeroDoPedidoCliente(pedido);
+        response.setNotaFiscal(notaFiscal);
+        response.setCliente(cliente);
+        response.setEnderecoRetirada(retirada);
+        response.setEnderecoEntrega(entrega);
+        response.setLivro(livro);
+        
+        response.setCusto(CUSTO_ENTREGA);
+        response.setDataEntrega(new Date(System.currentTimeMillis()));
+        response.setDataRetirada(new Date(System.currentTimeMillis()));
+        
+        DasbuchDAO dao = new DasbuchDAO();
+        int idPedidoTransporte = dao.persistir(response);
+        if(idPedidoTransporte != -1)
+            response.setNumeroDoPedidoTransporte(idPedidoTransporte);
         
         return response;
     }

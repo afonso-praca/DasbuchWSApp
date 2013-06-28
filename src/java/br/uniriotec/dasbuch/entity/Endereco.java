@@ -10,6 +10,7 @@ package br.uniriotec.dasbuch.entity;
  */
 public class Endereco {
     
+    private int id;
     private String logradouro;
     private String numero;
     private String complemento;
@@ -32,6 +33,14 @@ public class Endereco {
         this.cep = cep;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
     public String getLogradouro() {
         return logradouro;
     }
