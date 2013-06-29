@@ -4,7 +4,7 @@
  */
 package br.uniriotec.dasbuch.entity;
 
-import java.sql.Date;
+import java.util.Date;
 
 /**
  *

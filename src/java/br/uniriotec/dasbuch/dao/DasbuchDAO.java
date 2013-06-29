@@ -9,10 +9,12 @@ import br.uniriotec.dasbuch.entity.Endereco;
 import br.uniriotec.dasbuch.entity.Livro;
 import br.uniriotec.dasbuch.entity.ReciboTransporte;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,11 +52,12 @@ public class DasbuchDAO {
         checarExistenciaLivro(reciboTransporte.getLivro());
         int idPedidoTransporte = persistirPedidoTransporte(reciboTransporte);
         fecharConexao();
+        //System.out.println("idPedidoTransporte = " + idPedidoTransporte);
         return idPedidoTransporte;
     }
     
     private void checarExistenciaCliente(Cliente cliente) {
-        List<String> resultado = new ArrayList<>();
+        List<String> resultado = new ArrayList<String>();
         try {
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM cliente WHERE cli_cpf = ?");    
             stmt.setString(1, cliente.getCpf());
@@ -73,7 +76,7 @@ public class DasbuchDAO {
     }
     
     private void checarExistenciaLivro(Livro livro) {
-        List<String> resultado = new ArrayList<>();
+        List<String> resultado = new ArrayList<String>();
         try {
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM livro WHERE liv_isbn = ?");    
             stmt.setString(1, livro.getIsbn());
@@ -92,7 +95,7 @@ public class DasbuchDAO {
     }
     
     private void checarExistenciaEndereco(Endereco endereco) {
-        List<Integer> resultado = new ArrayList<>();
+        List<Integer> resultado = new ArrayList<Integer>();
         try {
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM endereco WHERE end_id = ?");    
             stmt.setInt(1, endereco.getId());
@@ -201,21 +204,25 @@ public class DasbuchDAO {
                     + "ped_id_livraria, "
                     + "ped_id_pedido_livraria, "
                     + "ped_cpf) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             
             stmt.setString(1, reciboTransporte.getNotaFiscal());
             stmt.setString(2, reciboTransporte.getLivro().getIsbn());
             stmt.setInt(3, reciboTransporte.getEnderecoRetirada().getId());
             stmt.setInt(4, reciboTransporte.getEnderecoEntrega().getId());
-            stmt.setDate(5, reciboTransporte.getDataRegistro());
-            stmt.setDate(6, reciboTransporte.getDataRetirada());
-            stmt.setDate(7, reciboTransporte.getDataEntrega());
+            
+            stmt.setDate(5, new Date(reciboTransporte.getDataRegistro().getTime()));
+            stmt.setDate(6, new Date(reciboTransporte.getDataRetirada().getTime()));
+            stmt.setDate(7, new Date(reciboTransporte.getDataEntrega().getTime()));
             stmt.setDouble(8, reciboTransporte.getCusto());
             stmt.setInt(9, reciboTransporte.getLivraria());
             stmt.setString(10, reciboTransporte.getNumeroDoPedidoCliente());
             stmt.setString(11, reciboTransporte.getCliente().getCpf());
+            
             stmt.executeUpdate();
+            
             rs = stmt.getGeneratedKeys();
+            
             if(rs != null && rs.next()) {
                 response = rs.getInt(1);
             }
