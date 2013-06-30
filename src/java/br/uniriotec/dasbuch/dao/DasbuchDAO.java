@@ -44,76 +44,95 @@ public class DasbuchDAO {
         }
     }
     
-    public int persistir(ReciboTransporte reciboTransporte) {
+    public void persistir(ReciboTransporte reciboTransporte) {
         abrirConexao();
-        checarExistenciaEndereco(reciboTransporte.getEnderecoRetirada());
-        checarExistenciaEndereco(reciboTransporte.getEnderecoEntrega());
+        Integer idEnderecoRetirada = checarExistenciaEndereco(reciboTransporte.getEnderecoRetirada());
+        if(idEnderecoRetirada != null) {
+            reciboTransporte.getEnderecoRetirada().setId(idEnderecoRetirada);
+        }
+        Integer idEnderecoEntrega = checarExistenciaEndereco(reciboTransporte.getEnderecoEntrega());
+        if(idEnderecoEntrega != null) {
+            reciboTransporte.getEnderecoEntrega().setId(idEnderecoEntrega);
+            reciboTransporte.getCliente().setEndereco(reciboTransporte.getEnderecoEntrega());
+        }
         checarExistenciaCliente(reciboTransporte.getCliente());
         checarExistenciaLivro(reciboTransporte.getLivro());
-        int idPedidoTransporte = persistirPedidoTransporte(reciboTransporte);
+        Integer idPedidoTransporte = persistirPedidoTransporte(reciboTransporte);
+        if(idPedidoTransporte != null) {
+            reciboTransporte.setNumeroDoPedidoTransporte(idPedidoTransporte);
+        }
         fecharConexao();
-        //System.out.println("idPedidoTransporte = " + idPedidoTransporte);
-        return idPedidoTransporte;
     }
     
     private void checarExistenciaCliente(Cliente cliente) {
         List<String> resultado = new ArrayList<String>();
+        String cpf = null;
         try {
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM cliente WHERE cli_cpf = ?");    
             stmt.setString(1, cliente.getCpf());
             stmt.setMaxRows(1);
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
-                String cpf = resultSet.getString("cli_cpf");
+                cpf = resultSet.getString("cli_cpf");
                 resultado.add(cpf);
+            }
+            if(resultado.isEmpty()) {
+                cpf = persistirCliente(cliente);
+            }
+            else {
+                if(resultSet.getInt("cli_id_endereco") != cliente.getEndereco().getId()) {
+                    //@TODO update no endereco do cliente
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        if(resultado.isEmpty()) {
-            persistirCliente(cliente);
         }
     }
     
     private void checarExistenciaLivro(Livro livro) {
         List<String> resultado = new ArrayList<String>();
+        String isbn = null;
         try {
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM livro WHERE liv_isbn = ?");    
             stmt.setString(1, livro.getIsbn());
             stmt.setMaxRows(1);
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
-                String isbn = resultSet.getString("liv_isbn");
+                isbn = resultSet.getString("liv_isbn");
                 resultado.add(isbn);
+            }
+            if(resultado.isEmpty()) {
+                isbn = persistirLivro(livro);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(resultado.isEmpty()) {
-            persistirLivro(livro);
-        }
     }
     
-    private void checarExistenciaEndereco(Endereco endereco) {
+    private Integer checarExistenciaEndereco(Endereco endereco) {
         List<Integer> resultado = new ArrayList<Integer>();
+        Integer idEndereco = null;
         try {
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM endereco WHERE end_id = ?");    
             stmt.setInt(1, endereco.getId());
             stmt.setMaxRows(1);
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
-                int idEndereco = resultSet.getInt("end_id");
+                idEndereco = resultSet.getInt("end_id");
                 resultado.add(idEndereco);
+            }
+            if(resultado.isEmpty()) {
+                idEndereco = persistirEndereco(endereco);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(resultado.isEmpty()) {
-            persistirEndereco(endereco);
-        }
+        return idEndereco;
     }
     
-    private void persistirCliente(Cliente cliente) {
+    private String persistirCliente(Cliente cliente) {
+        ResultSet rs = null;
+        String cpf = null;
         try {
             PreparedStatement stmt = conn.prepareStatement(
                     "INSERT INTO cliente("
@@ -122,20 +141,29 @@ public class DasbuchDAO {
                     + "cli_id_endereco, "
                     + "cli_email, "
                     + "cli_telefone)"
-                    + "VALUES (?, ?, ?, ?, ?)");
+                    + "VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             
             stmt.setString(1, cliente.getNome());
             stmt.setString(2, cliente.getCpf());
             stmt.setInt(3, cliente.getEndereco().getId());
             stmt.setString(4, cliente.getEmail());
             stmt.setString(5, cliente.getTelefone());
+            
             stmt.executeUpdate();
+            
+            rs = stmt.getGeneratedKeys();
+            if(rs != null && rs.next()) {
+                cpf = rs.getString(1);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return cpf;
     }
     
-    private void persistirLivro(Livro livro) {
+    private String persistirLivro(Livro livro) {
+        ResultSet rs = null;
+        String isbn = null;
         try {
             PreparedStatement stmt = conn.prepareStatement(
                     "INSERT INTO livro("
@@ -146,7 +174,7 @@ public class DasbuchDAO {
                     + "liv_altura, "
                     + "liv_peso, "
                     + "liv_editora)"
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             
             stmt.setString(1, livro.getIsbn());
             stmt.setString(2, livro.getTitulo());
@@ -155,13 +183,22 @@ public class DasbuchDAO {
             stmt.setDouble(5, livro.getAltura());
             stmt.setDouble(6, livro.getPeso());
             stmt.setString(7, livro.getEditora());
+            
             stmt.executeUpdate();
+            
+            rs = stmt.getGeneratedKeys();
+            if(rs != null && rs.next()) {
+                isbn = rs.getString(1);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return isbn;
     }
     
-    private void persistirEndereco(Endereco endereco) {
+    private int persistirEndereco(Endereco endereco) {
+        ResultSet rs = null;
+        int idEndereco = -1;
         try {
             PreparedStatement stmt = conn.prepareStatement(
                     "INSERT INTO endereco("
@@ -172,7 +209,7 @@ public class DasbuchDAO {
                     + "end_cidade, "
                     + "end_estado, "
                     + "end_cep)"
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             
             stmt.setString(1, endereco.getLogradouro());
             stmt.setString(2, endereco.getNumero());
@@ -181,15 +218,23 @@ public class DasbuchDAO {
             stmt.setString(5, endereco.getCidade());
             stmt.setString(6, endereco.getEstado());
             stmt.setString(7, endereco.getCep());
+            
             stmt.executeUpdate();
+            
+            rs = stmt.getGeneratedKeys();
+            if(rs != null && rs.next()) {
+                idEndereco = rs.getInt(1);
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return idEndereco;
     }  
     
-    private int persistirPedidoTransporte(ReciboTransporte reciboTransporte) {
+    private Integer persistirPedidoTransporte(ReciboTransporte reciboTransporte) {
         ResultSet rs = null;
-        int response = -1;
+        Integer idTransporte = null;
         try {
             PreparedStatement stmt = conn.prepareStatement(
                     "INSERT INTO pedido_transporte("
@@ -210,7 +255,6 @@ public class DasbuchDAO {
             stmt.setString(2, reciboTransporte.getLivro().getIsbn());
             stmt.setInt(3, reciboTransporte.getEnderecoRetirada().getId());
             stmt.setInt(4, reciboTransporte.getEnderecoEntrega().getId());
-            
             stmt.setDate(5, new Date(reciboTransporte.getDataRegistro().getTime()));
             stmt.setDate(6, new Date(reciboTransporte.getDataRetirada().getTime()));
             stmt.setDate(7, new Date(reciboTransporte.getDataEntrega().getTime()));
@@ -222,14 +266,13 @@ public class DasbuchDAO {
             stmt.executeUpdate();
             
             rs = stmt.getGeneratedKeys();
-            
             if(rs != null && rs.next()) {
-                response = rs.getInt(1);
+                idTransporte = rs.getInt(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return response;
+        return idTransporte;
     }
     
 }

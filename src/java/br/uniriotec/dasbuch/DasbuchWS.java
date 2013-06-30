@@ -11,7 +11,8 @@ import javax.jws.WebParam;
 import javax.ejb.Stateless;
 
 import br.uniriotec.dasbuch.entity.*;
-import java.sql.Date;
+import java.util.Date;
+import java.util.Calendar;
 
 /**
  *
@@ -22,6 +23,9 @@ import java.sql.Date;
 public class DasbuchWS {
     
     private static final double CUSTO_ENTREGA = 10.0;
+    private static final int TEMPO_ENTREGA = 1; // dias apos a retirada
+    private static final int HORARIO_INICIO_ENTREGAS = 8;
+    private static final int HORARIO_FIM_ENTREGAS = 18;
 
     /**
      * Web service operation
@@ -45,13 +49,35 @@ public class DasbuchWS {
         response.setLivro(livro);
         
         response.setCusto(CUSTO_ENTREGA);
-        response.setDataEntrega(new Date(System.currentTimeMillis()));
-        response.setDataRetirada(new Date(System.currentTimeMillis()));
+        
+        // data de retirada: mesma data da requisicao
+        Date dataRetirada = new Date(System.currentTimeMillis());
+        response.setDataRetirada(dataRetirada);
+        
+        // calcula data de entrega a partir da data de retirada
+        Calendar c = Calendar.getInstance(); 
+        c.setTime(dataRetirada); 
+        c.add(Calendar.DATE, TEMPO_ENTREGA);
+        
+        // data de entrega: <TEMPO_ENTREGA> dias apos data de retirada
+        Date dataEntrega = c.getTime();
+        
+        // tranportadora nao entrega antes das <HORARIO_INICIO_ENTREGAS>h!
+        if(dataEntrega.getHours() < HORARIO_INICIO_ENTREGAS) {
+            dataEntrega.setHours(HORARIO_INICIO_ENTREGAS);
+            dataEntrega.setMinutes(0);
+            dataEntrega.setSeconds(0);
+        }
+        // tranportadora nao entrega apos as <HORARIO_FIM_ENTREGAS>h!
+        if(dataEntrega.getHours() > HORARIO_FIM_ENTREGAS) {
+            dataEntrega.setHours(HORARIO_FIM_ENTREGAS);
+            dataEntrega.setMinutes(0);
+            dataEntrega.setSeconds(0);
+        }
+        response.setDataEntrega(dataEntrega);
         
         DasbuchDAO dao = new DasbuchDAO();
-        int idPedidoTransporte = dao.persistir(response);
-        if(idPedidoTransporte != -1)
-            response.setNumeroDoPedidoTransporte(idPedidoTransporte);
+        dao.persistir(response);
         
         return response;
     }
