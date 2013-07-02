@@ -19,11 +19,11 @@ CREATE TABLE "endereco" (
     end_cep character varying(8)
 );
 
-DROP TABLE IF EXISTS "livraria";
-CREATE TABLE "livraria" (
-    li_id integer NOT NULL,
-    li_nome character varying(255)
-);
+-- DROP TABLE IF EXISTS "livraria";
+-- CREATE TABLE "livraria" (
+--     li_id integer NOT NULL,
+--     li_nome character varying(255)
+-- );
 
 DROP TABLE IF EXISTS "livro";
 CREATE TABLE "livro" (
