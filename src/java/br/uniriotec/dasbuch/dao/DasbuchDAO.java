@@ -13,7 +13,6 @@ import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +43,7 @@ public class DasbuchDAO {
         }
     }
     
-    public void persistir(ReciboTransporte reciboTransporte) {
+    public void persistir(ReciboTransporte reciboTransporte, Livro livro, int livrariaId, String notaFiscal) {
         abrirConexao();
         Integer idEnderecoRetirada = checarExistenciaEndereco(reciboTransporte.getEnderecoRetirada());
         if(idEnderecoRetirada != null) {
@@ -56,8 +55,8 @@ public class DasbuchDAO {
             reciboTransporte.getCliente().setEndereco(reciboTransporte.getEnderecoEntrega());
         }
         checarExistenciaCliente(reciboTransporte.getCliente());
-        checarExistenciaLivro(reciboTransporte.getLivro());
-        Integer idPedidoTransporte = persistirPedidoTransporte(reciboTransporte);
+        checarExistenciaLivro(livro);
+        Integer idPedidoTransporte = persistirPedidoTransporte(reciboTransporte, livro, livrariaId, notaFiscal);
         if(idPedidoTransporte != null) {
             reciboTransporte.setNumeroDoPedidoTransporte(idPedidoTransporte);
         }
@@ -232,7 +231,7 @@ public class DasbuchDAO {
         return idEndereco;
     }  
     
-    private Integer persistirPedidoTransporte(ReciboTransporte reciboTransporte) {
+    private Integer persistirPedidoTransporte(ReciboTransporte reciboTransporte, Livro livro, int livrariaId, String notaFiscal) {
         ResultSet rs = null;
         Integer idTransporte = null;
         try {
@@ -251,15 +250,15 @@ public class DasbuchDAO {
                     + "ped_cpf) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             
-            stmt.setString(1, reciboTransporte.getNotaFiscal());
-            stmt.setString(2, reciboTransporte.getLivro().getIsbn());
+            stmt.setString(1, notaFiscal);
+            stmt.setString(2, livro.getIsbn());
             stmt.setInt(3, reciboTransporte.getEnderecoRetirada().getId());
             stmt.setInt(4, reciboTransporte.getEnderecoEntrega().getId());
             stmt.setDate(5, new Date(reciboTransporte.getDataRegistro().getTime()));
             stmt.setDate(6, new Date(reciboTransporte.getDataRetirada().getTime()));
             stmt.setDate(7, new Date(reciboTransporte.getDataEntrega().getTime()));
             stmt.setDouble(8, reciboTransporte.getCusto());
-            stmt.setInt(9, reciboTransporte.getLivraria());
+            stmt.setInt(9, livrariaId);
             stmt.setString(10, reciboTransporte.getNumeroDoPedidoCliente());
             stmt.setString(11, reciboTransporte.getCliente().getCpf());
             

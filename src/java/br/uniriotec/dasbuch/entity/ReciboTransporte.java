@@ -13,11 +13,8 @@ import java.util.Date;
 public class ReciboTransporte {
     
     private int numeroDoPedidoTransporte;
-    private int livraria;
     private String numeroDoPedidoCliente;
     private Cliente cliente;
-    private String notaFiscal;
-    private Livro livro;
     private Endereco enderecoRetirada;
     private Endereco enderecoEntrega;
     private Date dataRetirada;
@@ -40,14 +37,6 @@ public class ReciboTransporte {
         this.numeroDoPedidoTransporte = numeroDoPedidoTransporte;
     }
 
-    public int getLivraria() {
-        return livraria;
-    }
-
-    public void setLivraria(int livraria) {
-        this.livraria = livraria;
-    }
-
     public String getNumeroDoPedidoCliente() {
         return numeroDoPedidoCliente;
     }
@@ -62,22 +51,6 @@ public class ReciboTransporte {
 
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
-    }
-
-    public String getNotaFiscal() {
-        return notaFiscal;
-    }
-
-    public void setNotaFiscal(String notaFiscal) {
-        this.notaFiscal = notaFiscal;
-    }
-
-    public Livro getLivro() {
-        return livro;
-    }
-
-    public void setLivro(Livro livro) {
-        this.livro = livro;
     }
 
     public Endereco getEnderecoRetirada() {

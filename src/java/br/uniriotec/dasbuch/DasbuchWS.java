@@ -37,17 +37,15 @@ public class DasbuchWS {
         @WebParam(name = "cliente") Cliente cliente,
         @WebParam(name = "retirada") Endereco retirada, 
         @WebParam(name = "entrega") Endereco entrega,
-        @WebParam(name = "livro") Livro livro) {
+        @WebParam(name = "livro") Livro livro,
+        @WebParam(name = "livraria") int livraria) {
         
         ReciboTransporte response = new ReciboTransporte();
         
         response.setNumeroDoPedidoCliente(pedido);
-        response.setNotaFiscal(notaFiscal);
         response.setCliente(cliente);
         response.setEnderecoRetirada(retirada);
         response.setEnderecoEntrega(entrega);
-        response.setLivro(livro);
-        
         response.setCusto(CUSTO_ENTREGA);
         
         // data de retirada: mesma data da requisicao
@@ -77,7 +75,7 @@ public class DasbuchWS {
         response.setDataEntrega(dataEntrega);
         
         DasbuchDAO dao = new DasbuchDAO();
-        dao.persistir(response);
+        dao.persistir(response, livro, livraria, notaFiscal);
         
         return response;
     }
